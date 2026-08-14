@@ -15,7 +15,7 @@
 
         // Read the name from the URL parameter (e.g., ?target=Alex)
         const urlParams = new URLSearchParams(window.location.search);
-        const targetName = urlParams.get('target') || "Unknown Visitor";
+        const targetName = urlParams.get('name') || "Unknown Visitor";
 
         // Create the notification payload
         const payload = {
